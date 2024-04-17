@@ -24,15 +24,15 @@ const Start = ({ navigation }) => {
       />
       <View style={styles.colorPicker} value={color}>
         <TouchableOpacity
-          style={[styles.colorButton, { backgroundColor: "red" }]}
+          style={[styles.colorButton, { backgroundColor:"rgb(255, 150, 143)"}]}
           onPress={() => changeColor("rgb(255, 150, 143)")}
         />
         <TouchableOpacity
-          style={[styles.colorButton, { backgroundColor: "green" }]}
+          style={[styles.colorButton, { backgroundColor: "rgb(143, 255, 162)" }]}
           onPress={() => changeColor("rgb(143, 255, 162)")}
         />
         <TouchableOpacity
-          style={[styles.colorButton, { backgroundColor: "blue" }]}
+          style={[styles.colorButton, { backgroundColor: "rgb(143, 236, 255)"}]}
           onPress={() => changeColor("rgb(143, 236, 255)")}
         />
       </View>
