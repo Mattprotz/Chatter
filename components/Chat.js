@@ -2,16 +2,33 @@ import { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
-  Text,
-  Button,
   Platform,
+  Text,
   KeyboardAvoidingView,
 } from "react-native";
+import { collection, getDocs } from "firebase/firestore";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
-const Chat = ({ route, navigation }) => {
+const Chat = ({ route, navigation, db }) => {
   const { name, color } = route.params; //destructuring name and color from route paramerters
   const [messages, setMessages] = useState([]); //messages as state
+
+  const fetchMessages = async () => { //fetching messages from Firestore
+    const messageDocuments = await getDocs(collection(db, "messages")); 
+    let newMessages = [];
+    messageDocuments.forEach(docObject => {
+      newMessages.push({
+        id: docObject.id,
+        ...docObject.data(),
+        createdAt: new Date(docObject.data().createdAt())
+      });
+    });
+    setMessages(newMessages);
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [`${messages}`]);
 
   useEffect(() => {
     //hook to set navigation options when component mounts
@@ -33,7 +50,7 @@ const Chat = ({ route, navigation }) => {
       },
       {
         _id: 2,
-        text: "System Message",
+        text: "Say Hi!",
         createdAt: new Date(),
         system: true,
       },
@@ -74,8 +91,10 @@ const Chat = ({ route, navigation }) => {
         onSend={(messages) => onSend(messages)}
         user={{
           _id: 1,
+          name: name,
         }}
       />
+
       {/* keyboard doesnt overlap input field */}
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />

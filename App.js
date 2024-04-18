@@ -11,10 +11,23 @@ import {
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import Start from "./components/Start";
 import Chat from "./components/Chat";
 
 const App = () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyCikqWBcobNi251yH7rYlQEOnoCmxYz09U",
+    authDomain: "chatter-d4f39.firebaseapp.com",
+    projectId: "chatter-d4f39",
+    storageBucket: "chatter-d4f39.appspot.com",
+    messagingSenderId: "126328665381",
+    appId: "1:126328665381:web:a246b61bdf4a6653c8d6cc",
+  };
+  const app = initializeApp(firebaseConfig); //initialize firebase
+  const db = getFirestore(app); //initialize firestore and reference service
+
   const [text, setText] = useState("");
   const Stack = createNativeStackNavigator();
 
@@ -50,8 +63,9 @@ const App = () => {
       </View> */}
       <Stack.Navigator initialRouteNme="Screen1">
         {/* two required props : name and component */}
-        <Stack.Screen name="Start" component={Start} /> 
+        <Stack.Screen name="Start" component={Start} />
         <Stack.Screen name="Chat" component={Chat} />
+        {(props) => <Chat db={db} {...props} />}
       </Stack.Navigator>
     </NavigationContainer>
   );

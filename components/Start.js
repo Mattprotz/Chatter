@@ -10,7 +10,7 @@ import { useState } from "react";
 
 const Start = ({ navigation }) => {
   const [name, setName] = useState("");
-  const [color, setColor] = useState("blue");
+  const [color, setColor] = useState("rgb(143, 236, 255)");
   const changeColor = (newColor) => setColor(newColor);
   return (
     <View style={[styles.container,{backgroundColor:color}]}>
