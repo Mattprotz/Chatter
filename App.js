@@ -15,6 +15,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import Start from "./components/Start";
 import Chat from "./components/Chat";
+import Welcome from "./components/Welcome";
 
 const App = () => {
   const firebaseConfig = {
@@ -27,7 +28,7 @@ const App = () => {
   };
   const app = initializeApp(firebaseConfig); //initialize firebase
   const db = getFirestore(app); //initialize firestore and reference service
- 
+
   const [text, setText] = useState("");
   const Stack = createNativeStackNavigator();
 
@@ -37,34 +38,12 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      {/* <View style={styles.container}>
-        <View style={styles.box1}></View>
-        <View style={styles.box2}>
-          <TextInput
-            style={styles.textInput}
-            value={text}
-            onChangeText={setText}
-            placeholder="Type Something Here"
-          />
-          <Text>You wrote: {text}</Text>
-        </View>
-        <View style={styles.box3}>
-          <TouchableOpacity
-            onPress={() => {
-              alertMyText();
-            }}
-            title="Button"
-            style={styles.button}
-          ></TouchableOpacity>
-          <ScrollView>
-            <Text style={{ fontSize: 110 }}> </Text>
-          </ScrollView>
-        </View>
-      </View> */}
-      <Stack.Navigator initialRouteNme="Screen1">
+
+      <Stack.Navigator initialRouteNme="Welcome">
         {/* two required props : name and component */}
+        <Stack.Screen name="Welcome" component={Welcome}/>
         <Stack.Screen name="Start" component={Start} />
-        <Stack.Screen name="Chat" >
+        <Stack.Screen name="Chat">
           {(props) => <Chat db={db} {...props} />}
         </Stack.Screen>
       </Stack.Navigator>

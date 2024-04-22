@@ -6,23 +6,26 @@ import {
   Text,
   KeyboardAvoidingView,
 } from "react-native";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, orderBy, onSnapshot } from "firebase/firestore";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 const Chat = ({ route, navigation, db }) => {
-  console.log("starting chat")
-  const { name, color } = route.params; //destructuring name and color from route parameters
+  const { name, color, userID } = route.params; //destructuring name and color from route parameters
   const [messages, setMessages] = useState([]); //messages as state
 
   
   const fetchMessages = async () => { //fetching messages from Firestore
-    const messageDocuments = await getDocs(collection(db, "Messages")); 
+    const messageDocuments = await getDocs(collection(db, "Messages"), orderBy("createdAt", "desc")); 
     let newMessages = [];
     messageDocuments.forEach(docObject => {
       newMessages.push({
         id: docObject.id,
+        // user: {
+        //   _id: docObject.user._id,
+        //   name: docObject.user.name,
+        // },
         text: docObject.text,
-        date: 
+        createdAt:  new Date(docObject.data().createdAt.toMillis()),
         ...docObject.data()
       });
 
@@ -31,10 +34,31 @@ const Chat = ({ route, navigation, db }) => {
   };
 
   useEffect(() => {
-    fetchMessages();
-  },[`${messages}`]);
+    const unsubMessageList = onSnapshot(collection(db, "Messages"), (documentsSnapshot)=>{
+      let newMessages = [];
+      documentsSnapshot.forEach(docObject =>{
+        newMessages.push({
+          id: docObject.id,
+          ...docObject.data()
+        })
+      });
+      setMessages(newMessages);
+    });
+    //checks if unsub is NOT undefined
+    return () =>{
+      if(unsubMessageList)unsubMessageList();
+    }
+  },[]);
 
-
+  const addMessages = async (newMessage) =>{
+    const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
+      if(newMessageRef.id){
+        setMessages([newMessage, ...messages]);
+        Alert.alert('new message has been added')
+      }else{
+        Alert.alert('unable to add message')
+      }
+  }
 
   // useEffect(() => {
   //   setMessages([
@@ -92,7 +116,7 @@ const Chat = ({ route, navigation, db }) => {
         onSend={(messages) => onSend(messages)}
         user={{
           _id: 1,
-          name: name,
+          user: name,
         }}
       />
 
