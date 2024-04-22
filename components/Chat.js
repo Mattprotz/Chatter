@@ -10,52 +10,53 @@ import { collection, getDocs } from "firebase/firestore";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 const Chat = ({ route, navigation, db }) => {
-  const { name, color } = route.params; //destructuring name and color from route paramerters
+  console.log("starting chat")
+  const { name, color } = route.params; //destructuring name and color from route parameters
   const [messages, setMessages] = useState([]); //messages as state
 
+  
   const fetchMessages = async () => { //fetching messages from Firestore
-    const messageDocuments = await getDocs(collection(db, "messages")); 
+    const messageDocuments = await getDocs(collection(db, "Messages")); 
     let newMessages = [];
     messageDocuments.forEach(docObject => {
       newMessages.push({
         id: docObject.id,
-        ...docObject.data(),
-        createdAt: new Date(docObject.data().createdAt())
+        text: docObject.text,
+        date: 
+        ...docObject.data()
       });
+
     });
     setMessages(newMessages);
   };
 
   useEffect(() => {
     fetchMessages();
-  }, [`${messages}`]);
+  },[`${messages}`]);
 
-  useEffect(() => {
-    //hook to set navigation options when component mounts
-    navigation.setOptions({ title: name });
-  }, []);
 
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 1, //required for gifted
-        text: "Hello",
-        createdAt: new Date(), //required for gifted
-        user: {
-          //required for gifted
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "Say Hi!",
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
-  }, []);
+
+  // useEffect(() => {
+  //   setMessages([
+  //     {
+  //       _id: 1, //required for gifted
+  //       text: "Hello",
+  //       createdAt: new Date(), //required for gifted
+  //       user: {
+  //         //required for gifted
+  //         _id: 2,
+  //         name: "React Native",
+  //         avatar: "https://placeimg.com/140/140/any",
+  //       },
+  //     },
+  //     {
+  //       _id: 2,
+  //       text: "Say Hi!",
+  //       createdAt: new Date(),
+  //       system: true,
+  //     },
+  //   ]);
+  // }, []);
 
   const renderBubble = (props) => {
     return (
@@ -73,7 +74,7 @@ const Chat = ({ route, navigation, db }) => {
     );
   };
 
-  const onSend = (newMessages) => {
+  const onSend = (newMessages=[]) => {
     //parameter new message
     //called when user sends message
     setMessages(

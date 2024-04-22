@@ -27,7 +27,7 @@ const App = () => {
   };
   const app = initializeApp(firebaseConfig); //initialize firebase
   const db = getFirestore(app); //initialize firestore and reference service
-
+ 
   const [text, setText] = useState("");
   const Stack = createNativeStackNavigator();
 
@@ -64,8 +64,9 @@ const App = () => {
       <Stack.Navigator initialRouteNme="Screen1">
         {/* two required props : name and component */}
         <Stack.Screen name="Start" component={Start} />
-        <Stack.Screen name="Chat" component={Chat} />
-        {(props) => <Chat db={db} {...props} />}
+        <Stack.Screen name="Chat" >
+          {(props) => <Chat db={db} {...props} />}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
