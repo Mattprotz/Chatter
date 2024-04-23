@@ -20,7 +20,7 @@ const Start = ({ navigation }) => {
         style={styles.textInput}
         value={name}
         onChangeText={setName}
-        placeholder="Username"
+        placeholder="Choose Username..."
       />
       <View style={styles.colorPicker} value={color}>
         <TouchableOpacity

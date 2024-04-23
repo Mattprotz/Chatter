@@ -6,7 +6,7 @@ import {
   Text,
   KeyboardAvoidingView,
 } from "react-native";
-import { collection, getDocs, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, orderBy, onSnapshot, addDoc } from "firebase/firestore";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 const Chat = ({ route, navigation, db }) => {
@@ -19,26 +19,25 @@ const Chat = ({ route, navigation, db }) => {
     let newMessages = [];
     messageDocuments.forEach(docObject => {
       newMessages.push({
-        id: docObject.id,
-        // user: {
-        //   _id: docObject.user._id,
-        //   name: docObject.user.name,
-        // },
-        text: docObject.text,
+        _id: docObject.id,
+        user: {
+          _id: docObject.userId,
+          name: docObject.user.name,
+        },
         createdAt:  new Date(docObject.data().createdAt.toMillis()),
         ...docObject.data()
       });
-
     });
     setMessages(newMessages);
   };
 
   useEffect(() => {
+    console.log(userID)
     const unsubMessageList = onSnapshot(collection(db, "Messages"), (documentsSnapshot)=>{
       let newMessages = [];
       documentsSnapshot.forEach(docObject =>{
         newMessages.push({
-          id: docObject.id,
+          _id: docObject._id,
           ...docObject.data()
         })
       });
@@ -60,27 +59,9 @@ const Chat = ({ route, navigation, db }) => {
       }
   }
 
-  // useEffect(() => {
-  //   setMessages([
-  //     {
-  //       _id: 1, //required for gifted
-  //       text: "Hello",
-  //       createdAt: new Date(), //required for gifted
-  //       user: {
-  //         //required for gifted
-  //         _id: 2,
-  //         name: "React Native",
-  //         avatar: "https://placeimg.com/140/140/any",
-  //       },
-  //     },
-  //     {
-  //       _id: 2,
-  //       text: "Say Hi!",
-  //       createdAt: new Date(),
-  //       system: true,
-  //     },
-  //   ]);
-  // }, []);
+  if(!userID){
+    console.error("UserID is undefined")
+  }
 
   const renderBubble = (props) => {
     return (
@@ -98,14 +79,8 @@ const Chat = ({ route, navigation, db }) => {
     );
   };
 
-  const onSend = (newMessages=[]) => {
-    //parameter new message
-    //called when user sends message
-    setMessages(
-      (
-        previousMessages //instead of directly changing state,
-      ) => GiftedChat.append(previousMessages, newMessages)
-    ); //appending new messages to previous sent messages
+  const onSend = (newMessages) => {
+    addDoc(collection(db, "Messages"), newMessages[0]);
   };
 
   return (
@@ -115,12 +90,12 @@ const Chat = ({ route, navigation, db }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
-          user: name,
+          _id: userID,
+          name: name,
         }}
       />
 
-      {/* keyboard doesnt overlap input field */}
+      {/* keyboard doesn't overlap input field */}
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
       ) : null}

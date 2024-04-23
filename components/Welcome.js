@@ -4,14 +4,16 @@ import { getAuth, signInAnonymously } from "firebase/auth";
 const Welcome = ({ navigation }) => {
     const auth = getAuth();
     const signInUser = () =>{
+      
         signInAnonymously(auth)
             .then(result=>{
-                navigation.navigate("Chat", {userID:result.user.uid});
+                navigation.navigate("Start", {userID:result.user.uid});
                 Alert.alert("Signed in Successfully!")
             })
             .catch((error)=>{
                 Alert.alert("Unable to sign in")
             })
+         
     }
 
   return (
@@ -29,16 +31,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgb(143, 236, 255)"
   },
   appTitle: {
-    fontWeight: "600",
-    fontSize: 45,
+    fontSize: 50,
+    fontWeight: "bold",
+    padding: 30,
     marginBottom: 100,
+    color: "rgb(255,255,212)",
   },
   startButton: {
-    backgroundColor: "rgb(176,223,255)",
+    borderWidth: 2,
+    borderColor: "rgb(255,255,212)",
+    borderRadius:"50",
     height: 50,
-    width: "88%",
+    width: "50%",
     justifyContent: "center",
     alignItems: "center",
   },
