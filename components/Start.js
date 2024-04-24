@@ -12,6 +12,8 @@ const Start = ({ navigation }) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("rgb(143, 236, 255)");
   const changeColor = (newColor) => setColor(newColor);
+  
+
   return (
     <View style={[styles.container,{backgroundColor:color}]}>
       <Text style={styles.title}>CHATTER</Text>
@@ -38,7 +40,7 @@ const Start = ({ navigation }) => {
       </View>
       <Button
         title="Chat"
-        onPress={() => navigation.navigate("Chat", { name: name , color: color})}
+        onPress={() => navigation.navigate("Chat", {  name: name , color: color, id: id })}
         style={styles.chatButton}
       />
     </View>

@@ -10,19 +10,18 @@ import { collection, getDocs, orderBy, onSnapshot, addDoc } from "firebase/fires
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 
 const Chat = ({ route, navigation, db }) => {
-  const { name, color, userID } = route.params; //destructuring name and color from route parameters
+  const { name, color, id } = route.params; //destructuring name and color from route parameters
   const [messages, setMessages] = useState([]); //messages as state
-
   
   const fetchMessages = async () => { //fetching messages from Firestore
-    const messageDocuments = await getDocs(collection(db, "Messages"), orderBy("createdAt", "desc")); 
-    let newMessages = [];
-    messageDocuments.forEach(docObject => {
+    const messageDocuments = await getDocs(collection(db, "Messages"), orderBy("createdAt", "desc"));  //pulling from firestore 
+    let newMessages = []; //create empty area
+    messageDocuments.forEach(docObject => { //iterating over each object/document in collection
       newMessages.push({
-        _id: docObject.id,
+        id: docObject.id,
         user: {
-          _id: docObject.userId,
-          name: docObject.user.name,
+          id: docObject.id,
+          ...docObject.data(),
         },
         createdAt:  new Date(docObject.data().createdAt.toMillis()),
         ...docObject.data()
@@ -31,13 +30,32 @@ const Chat = ({ route, navigation, db }) => {
     setMessages(newMessages);
   };
 
+  const addMessages = async (newMessage) =>{
+    const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
+      if(newMessageRef.id){
+        setMessages([newMessage, ...messages]);
+        Alert.alert('new message has been added')
+        console.log("Message:", newMessageRef.id)
+      }else{
+        Alert.alert('unable to add message')
+      }
+  }
+
+  const onSend = (newMessages) => {
+    addDoc(collection(db, "Messages"), newMessages[0]);
+    console.log("message sent")
+  };
+
+  // if(!userID){
+  //   console.error("UserID is undefined")
+  // }
+
   useEffect(() => {
-    console.log(userID)
     const unsubMessageList = onSnapshot(collection(db, "Messages"), (documentsSnapshot)=>{
       let newMessages = [];
       documentsSnapshot.forEach(docObject =>{
         newMessages.push({
-          _id: docObject._id,
+          id: docObject.id,
           ...docObject.data()
         })
       });
@@ -49,19 +67,7 @@ const Chat = ({ route, navigation, db }) => {
     }
   },[]);
 
-  const addMessages = async (newMessage) =>{
-    const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
-      if(newMessageRef.id){
-        setMessages([newMessage, ...messages]);
-        Alert.alert('new message has been added')
-      }else{
-        Alert.alert('unable to add message')
-      }
-  }
-
-  if(!userID){
-    console.error("UserID is undefined")
-  }
+ 
 
   const renderBubble = (props) => {
     return (
@@ -79,9 +85,7 @@ const Chat = ({ route, navigation, db }) => {
     );
   };
 
-  const onSend = (newMessages) => {
-    addDoc(collection(db, "Messages"), newMessages[0]);
-  };
+
 
   return (
     <View style={[styles.container, { backgroundColor: color }]}>
@@ -90,8 +94,7 @@ const Chat = ({ route, navigation, db }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: userID,
-          name: name,
+          _id: id
         }}
       />
 
