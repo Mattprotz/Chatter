@@ -8,11 +8,12 @@ import {
 } from "react-native";
 import { useState } from "react";
 
-const Start = ({ navigation }) => {
+const Start = ({ navigation, route }) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("rgb(143, 236, 255)");
   const changeColor = (newColor) => setColor(newColor);
-  
+  const userID = route.params;
+  console.log("userID at start", userID)
 
   return (
     <View style={[styles.container,{backgroundColor:color}]}>
@@ -40,7 +41,7 @@ const Start = ({ navigation }) => {
       </View>
       <Button
         title="Chat"
-        onPress={() => navigation.navigate("Chat", {  name: name , color: color, id: id })}
+        onPress={() => navigation.navigate("Chat", {  name: name , color: color, userID: userID })}
         style={styles.chatButton}
       />
     </View>

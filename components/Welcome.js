@@ -2,24 +2,26 @@ import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { useEffect } from "react";
 
-const Welcome = ({ navigation }) => {
+const Welcome = ({ navigation, route }) => {
     const auth = getAuth();
+    
     const signInUser = () =>{
         signInAnonymously(auth)
             .then(result=>{
-                navigation.navigate("Chat", {id: result.user.uid});
+                navigation.navigate("Start", {userID: result.user.uid});
                 Alert.alert("Signed in Successfully!")
             })
             .catch((error)=>{
                 Alert.alert("Unable to sign in")
+                console.error("Error", error)
             })    
     }
-    
+
   return (
     <View style={styles.container}>
       <Text style={styles.appTitle}>CHATTER</Text>
       <TouchableOpacity style={styles.startButton} onPress={signInUser}>
-        <Text style={styles.startButtonText}>Get Started</Text>
+        <Text style={styles.startButtonText}>Guest</Text>
       </TouchableOpacity>
     </View>
   );
