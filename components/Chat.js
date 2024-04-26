@@ -5,9 +5,17 @@ import {
   Platform,
   Text,
   KeyboardAvoidingView,
-  Alert
+  Alert,
 } from "react-native";
-import { collection, getDocs, orderBy, onSnapshot, addDoc, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -15,13 +23,17 @@ const Chat = ({ route, navigation, db, isConnected }) => {
   const { name, color, userID } = route.params; //destructuring name, id, and color from route parameters
   const [messages, setMessages] = useState([]); //messages as state
   console.log("name", name);
-  console.log("userID at Chat", userID)
+  console.log("userID at Chat", userID);
 
-  
-  const fetchMessages = async () => { //fetching messages from Firestore
-    const messageDocuments = await getDocs(collection(db, "Messages"), orderBy("createdAt", "desc"));  //pulling from firestore 
+  const fetchMessages = async () => {
+    //fetching messages from Firestore
+    const messageDocuments = await getDocs(
+      collection(db, "Messages"),
+      orderBy("createdAt", "desc")
+    ); //pulling from firestore
     let newMessages = []; //create empty area
-    messageDocuments.forEach(docObject => { //iterating over each object/document in collection
+    messageDocuments.forEach((docObject) => {
+      //iterating over each object/document in collection
       newMessages.push({
         id: docObject.id,
         user: {
@@ -29,65 +41,65 @@ const Chat = ({ route, navigation, db, isConnected }) => {
           name: docObject.name,
           ...docObject.data(),
         },
-        createdAt:  new Date(docObject.data().createdAt.toMillis()),
-        ...docObject.data()
+        createdAt: new Date(docObject.data().createdAt.toMillis()),
+        ...docObject.data(),
       });
     });
     setMessages(newMessages);
   };
 
-  const addMessages = async (newMessage) =>{
+  const addMessages = async (newMessage) => {
     const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
-      if(newMessageRef.id){
-        setMessages([newMessage, ...messages]);
-        Alert.alert('new message has been added')
-        console.log("Message:", newMessageRef.id)
-      }else{
-        Alert.alert('unable to add message')
-      }
-  }
+    if (newMessageRef.id) {
+      setMessages([newMessage, ...messages]);
+      Alert.alert("new message has been added");
+      console.log("Message:", newMessageRef.id);
+    } else {
+      Alert.alert("unable to add message");
+    }
+  };
 
   const onSend = (newMessages) => {
     addDoc(collection(db, "Messages"), newMessages[0]);
-    console.log("message sent")
+    console.log("message sent");
   };
 
-  const loadCachedMessages = async () =>{
-    const cachedMessages  = await AsyncStorage.getItem("message_lists") || []; //assigns empty array in case 'get' fails
+  const loadCachedMessages = async () => {
+    const cachedMessages = (await AsyncStorage.getItem("message_lists")) || []; //assigns empty array in case 'get' fails
     setMessages(JSON.parse(cachedMessages));
-  }
-//real time data sync if connected
+  };
+  //real time data sync if connected
+  let unsubMessageList;
   useEffect(() => {
-    let unsubMessageList; 
-    if(isConnected === true){
-    const q = query(collection(db, "Messages"), where("uid", "==", userID))
-     unsubMessageList = onSnapshot(q,(documentsSnapshot)=>{
-      let newMessages = [];
-      documentsSnapshot.forEach(docObject =>{
-        newMessages.push({
-          id: docObject.id,
-          ...docObject.data(),
-        })
+    if (isConnected === true) {
+      if (unsubMessageList) unsubMessageList();
+      unsubMessageList = null;
+      const q = query(collection(db, "Messages"), where("uid", "==", userID));
+      unsubMessageList = onSnapshot(q, (documentsSnapshot) => {
+        let newMessages = [];
+        documentsSnapshot.forEach((docObject) => {
+          newMessages.push({
+            id: docObject.id,
+            ...docObject.data(),
+          });
+        });
+        cacheMessageLists(newMessages);
+        setMessages(newMessages);
       });
-      cacheMessageLists(newMessages)
-      setMessages(newMessages);
-    });
-  }else loadCachedMessages();
+    } else loadCachedMessages();
     //checks if unsub is NOT undefined
-    return () =>{
-      if(unsubMessageList) unsubMessageList();
-    }
-  },[isConnected]); //calls callback when prop value changes
+  }, [isConnected]); //calls callback when prop value changes
 
-  const cacheMessageLists = async(messagesToCache) =>{
-    try{
-      await AsyncStorage.setItem('message_lists', JSON.stringify(messagesToCache))
-    }catch(error){
+  const cacheMessageLists = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem(
+        "message_lists",
+        JSON.stringify(messagesToCache)
+      );
+    } catch (error) {
       console.log(error.message);
     }
-  }
-
- 
+  };
 
   const renderBubble = (props) => {
     return (
@@ -105,8 +117,6 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     );
   };
 
-
-
   return (
     <View style={[styles.container, { backgroundColor: color }]}>
       <GiftedChat
@@ -115,7 +125,7 @@ const Chat = ({ route, navigation, db, isConnected }) => {
         onSend={(messages) => onSend(messages)}
         user={{
           id: userID,
-          name: name
+          name: name,
         }}
       />
 
