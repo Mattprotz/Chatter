@@ -25,81 +25,90 @@ const Chat = ({ route, navigation, db, isConnected }) => {
   console.log("name", name);
   console.log("userID at Chat", userID);
 
-  const fetchMessages = async () => {
-    //fetching messages from Firestore
-    const messageDocuments = await getDocs(
-      collection(db, "Messages"),
-      orderBy("createdAt", "desc")
-    ); //pulling from firestore
-    let newMessages = []; //create empty area
-    messageDocuments.forEach((docObject) => {
-      //iterating over each object/document in collection
-      newMessages.push({
-        id: docObject.id,
-        user: {
-          userID: docObject.id,
-          name: docObject.name,
-          ...docObject.data(),
-        },
-        createdAt: new Date(docObject.data().createdAt.toMillis()),
-        ...docObject.data(),
+  useEffect(() => {
+    //real time data sync if connected
+    let unsubMessages;
+    if (isConnected === true) {
+      console.log("Connected to firestore")
+      // , where("uid", "==", userID)
+      const q = query(collection(db, "Messages"), orderBy("createdAt", "desc"));
+      unsubMessages = onSnapshot(q, (documentsSnapshot) => {
+        let newMessages = [];
+        documentsSnapshot.forEach((docObject) => {
+          newMessages.push({
+            id: docObject.id,
+            ...docObject.data(),
+            createdAt: new Date(docObject.data().createdAt.toMillis()),
+            ...docObject.data(),
+          });
+        });
+        cacheMessages(newMessages);
+        setMessages(newMessages);
       });
-    });
-    setMessages(newMessages);
-  };
-
-  const addMessages = async (newMessage) => {
-    const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
-    if (newMessageRef.id) {
-      setMessages([newMessage, ...messages]);
-      Alert.alert("new message has been added");
-      console.log("Message:", newMessageRef.id);
     } else {
-      Alert.alert("unable to add message");
+      loadCachedMessages();
+      console.log("messages loading from cache");
+    }
+
+    return () => {
+      if (unsubMessages) unsubMessages();
+    };
+  }, [isConnected]);
+
+  const cacheMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem("Messages", JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
     }
   };
+
+  const loadCachedMessages = async () => {
+    const cachedMessages = (await AsyncStorage.getItem("Messages")) || []; //assigns empty array in case 'get' fails
+    setMessages(JSON.parse(cachedMessages));
+    console.log("messages from cache")
+  };
+
+  // const fetchMessages = async () => {
+  //   //fetching messages from Firestore
+  //   const messageDocuments = await getDocs(
+  //     collection(db, "Messages"),
+  //     orderBy("createdAt")
+  //   ); //pulling from firestore
+  //   let newMessages = []; //create empty area
+  //   messageDocuments.forEach((docObject) => {
+  //     //iterating over each object/document in collection
+  //     newMessages.push({
+  //       id: docObject.id,
+  //       user: {
+  //         userID: docObject.userID,
+  //         name: docObject.name,
+  //         ...docObject.data(),
+  //       },
+  //       createdAt: new Date(docObject.data().createdAt.toMillis()),
+  //       ...docObject.data(),
+  //     });
+  //   });
+
+  //   setMessages(newMessages);
+  // };
+
+  // const addMessages = async (newMessage) => {
+  //   const newMessageRef = await addDoc(messages(db, "Messages"), newMessage);
+  //   if (newMessageRef.id) {
+  //     setMessages([newMessage, ...messages]);
+  //     Alert.alert("new message has been added");
+  //     console.log("Message:", newMessageRef.id);
+  //   } else {
+  //     Alert.alert("unable to add message");
+  //   }
+  // };
 
   const onSend = (newMessages) => {
     addDoc(collection(db, "Messages"), newMessages[0]);
     console.log("message sent");
   };
 
-  const loadCachedMessages = async () => {
-    const cachedMessages = (await AsyncStorage.getItem("message_lists")) || []; //assigns empty array in case 'get' fails
-    setMessages(JSON.parse(cachedMessages));
-  };
-  //real time data sync if connected
-  let unsubMessageList;
-  useEffect(() => {
-    if (isConnected === true) {
-      if (unsubMessageList) unsubMessageList();
-      unsubMessageList = null;
-      const q = query(collection(db, "Messages"), where("uid", "==", userID));
-      unsubMessageList = onSnapshot(q, (documentsSnapshot) => {
-        let newMessages = [];
-        documentsSnapshot.forEach((docObject) => {
-          newMessages.push({
-            id: docObject.id,
-            ...docObject.data(),
-          });
-        });
-        cacheMessageLists(newMessages);
-        setMessages(newMessages);
-      });
-    } else loadCachedMessages();
-    //checks if unsub is NOT undefined
-  }, [isConnected]); //calls callback when prop value changes
-
-  const cacheMessageLists = async (messagesToCache) => {
-    try {
-      await AsyncStorage.setItem(
-        "message_lists",
-        JSON.stringify(messagesToCache)
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
 
   const renderBubble = (props) => {
     return (
@@ -124,7 +133,7 @@ const Chat = ({ route, navigation, db, isConnected }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          id: userID,
+          _id: userID,
           name: name,
         }}
       />
