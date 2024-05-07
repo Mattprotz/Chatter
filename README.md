@@ -1,24 +1,24 @@
-Chatter - Mobile Networking Application
+**Chatter** -Mobile Networking Application
     Chatter is a public messaging application. Designed for mobile devices, users can communicate via text, images, even share their location. iOS and Android users can access offline messaging using Firestore database storage. 
 
-Purpose - User Mentor networking
+**Purpose** - User Mentor networking
     Chatter will become a platform where students striving towards specific industries can connect with experienced mentors. This will create more coherent steps to success for young professionals. 
 
-Installation- 
+**Installation**- 
     Node.js version 18.14.1
     nvm install 18.14.1
 
-    Create Firestore account
-    New Project
-    Add configuration code to App.js
-    Allow read and write if "true"
+    1. Create Firestore account
+    2. Create New Project
+    3. Add configuration code to App.js
+    4. Allow read and write if "true"
 
-    1. Clone repository
-    2. Install dependencies in project directory
-    3. Start Expo project- npx expo start
-    4. Test with either ExpoGo mobile app or Android Studio Virtual Device
+    5. Clone repository
+    6. Install dependencies in project directory
+    7. Start Expo project- npx expo start
+    8. Test with either ExpoGo mobile app or Android Studio Virtual Device
 
-Dependencies - 
+**Dependencies** - 
     "@react-native-async-storage/async-storage": "1.21.0",
     "@react-native-community/netinfo": "11.1.0",
     "@react-navigation/native": "^6.1.17",
