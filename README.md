@@ -5,7 +5,18 @@ Purpose - User Mentor networking
     Chatter will become a platform where students striving towards specific industries can connect with experienced mentors. This will create more coherent steps to success for young professionals. 
 
 Installation- 
-    
+    Node.js version 18.14.1
+    nvm install 18.14.1
+
+    Create Firestore account
+    New Project
+    Add configuration code to App.js
+    Allow read and write if "true"
+
+    1. Clone repository
+    2. Install dependencies in project directory
+    3. Start Expo project- npx expo start
+    4. Test with either ExpoGo mobile app or Android Studio Virtual Device
 
 Dependencies - 
     "@react-native-async-storage/async-storage": "1.21.0",
