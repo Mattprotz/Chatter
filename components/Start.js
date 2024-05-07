@@ -59,9 +59,9 @@ const Start = ({ navigation, route }) => {
   return (
     <View style={[styles.container, { backgroundColor: color }]}>
       <Text style={styles.title}>CHATTER</Text>
-      <Button title="Select Image from Library" onPress={pickImage} />
+      {/* <Button title="Select Image from Library" onPress={pickImage} />
       <Button title="Take a Photo" onPress={takePhoto} />
-      <Button title="Get my location" onPress={getLocation} />
+      <Button title="Get my location" onPress={getLocation} /> */}
       {location && (
         <MapView
           style={{ width: 300, height: 200 }}

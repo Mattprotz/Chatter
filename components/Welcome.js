@@ -17,9 +17,19 @@ const Welcome = ({ navigation, route }) => {
             })    
     }
 
+    const signUpUser = () =>{
+
+    }
+
   return (
     <View style={styles.container}>
       <Text style={styles.appTitle}>CHATTER</Text>
+      {/* <TouchableOpacity style={styles.startButton}>
+        <Text style={styles.startButtonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.startButton}>
+        <Text style={styles.startButtonText}>Sign Up</Text>
+      </TouchableOpacity> */}
       <TouchableOpacity style={styles.startButton} onPress={signInUser}>
         <Text style={styles.startButtonText}>Guest</Text>
       </TouchableOpacity>
@@ -47,6 +57,7 @@ const styles = StyleSheet.create({
     borderRadius:"50",
     height: 50,
     width: "50%",
+    margin: 10,
     justifyContent: "center",
     alignItems: "center",
   },
